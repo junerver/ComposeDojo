@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -54,7 +55,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(navController: NavController) {
+fun Greeting(navController: NavHostController) {
     var counter by remember { mutableStateOf(0) }
     var visible by remember { mutableStateOf(true) }
     LaunchedEffect(key1 = Unit, block = {
@@ -78,21 +79,43 @@ fun Greeting(navController: NavController) {
             Text(text = "点一下")
         }
         HelloContent()
-        var name by rememberSaveable { mutableStateOf("") }
-        //两种不同的状态提升
-        HelloContent(value = name, onValueChange = { name = it })
-        HelloContent(rememberSaveable { mutableStateOf("") })
+//        var name by rememberSaveable { mutableStateOf("") }
+//        //两种不同的状态提升
+//        HelloContent(value = name, onValueChange = { name = it })
+//        HelloContent(rememberSaveable { mutableStateOf("") })
         MultiState()
+
+        TextWithVm()
+//        Button(onClick = { navController.navigate("register") }) {
+//            Text(text = "点我切换")
+//        }
+//        NavHost(navController = navController, startDestination = "login") {
+//            composable("login") { Login() }
+//            composable("register") { Register() }
+//        }
     }
+}
+
+@Composable
+fun Login(){
+    Text(text = "Login")
+}
+
+@Composable
+fun Register(){
+    Text(text = "Register")
 }
 
 //region
 @Composable
 fun HelloContent() {
     val scope = rememberCoroutineScope()
+    val vm = viewModel<AppViewModel>()
+    var name by vm.testState
+    var age by remember {
+        mutableStateOf(0)
+    }
     Column(modifier = Modifier.padding(16.dp)) {
-        val vm = viewModel<AppViewModel>()
-        var name by vm.testState
         if (name.isNotEmpty()) {
             Text(
                 text = "Hello, $name!",
@@ -105,7 +128,20 @@ fun HelloContent() {
             onValueChange = { name = it },
             label = { Text("Name") }
         )
+        Text(text = "Age: $age")
+        Button(onClick = { age += 1 }) {
+            Text(text = "点我加一岁")
+        }
     }
+}
+
+@Composable
+fun TextWithVm(){
+    val vm = viewModel<AppViewModel>()
+    val name by vm.testState
+
+    Text(text = "Hello, $name!")
+
 }
 
 @Composable
