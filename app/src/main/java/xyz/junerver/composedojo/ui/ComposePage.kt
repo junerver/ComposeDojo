@@ -1,16 +1,16 @@
 package xyz.junerver.composedojo.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import xyz.junerver.composedojo.AppViewModel
+import xyz.junerver.composedojo.rememberGlobalState
 
 /**
  * Description:
@@ -23,10 +23,16 @@ import xyz.junerver.composedojo.AppViewModel
 fun MainScreen(navController: NavController) {
     val vm = viewModel<AppViewModel>()
     var name by vm.testState
+    var global by rememberGlobalState()
+    // 数组、list不能直接使用 mutableStateOf()，需要使用 mutableStateListOf()
+    val list = remember {
+        mutableStateListOf("1", "2", "3")
+    }
 
     Surface {
         Column {
             Text(text = "MainScreen+$name")
+            Text(text = "Global: $global")
             Button(onClick = { navController.navigate("other") }) {
                 Text(text = "点我跳转")
             }
@@ -35,8 +41,27 @@ fun MainScreen(navController: NavController) {
                 onValueChange = { name = it },
                 label = { Text("Name-main") }
             )
+            list.map {
+                TText(text = it)
+            }
+            Button(onClick = {
+//                val l = ArrayList(list)
+//                l.add((list.size+1).toString())
+//                list = l
+                list.add((list.size+1).toString())
+//                name += list.size
+                Log.d("TAG", "MainScreen: list.size = ${list.size}")
+            }) {
+                Text(text = "点我添加 ${list.size}")
+            }
         }
+
     }
+}
+
+@Composable
+fun TText(text:String){
+    Text(text = "$text - ${Math.random()}")
 }
 
 @Composable

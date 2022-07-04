@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -54,10 +53,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*没有效果，不能作为全局状态*/
+@Composable
+fun rememberGlobalState() = remember { mutableStateOf("期望这是全局状态") }
+
+
 @Composable
 fun Greeting(navController: NavHostController) {
     var counter by remember { mutableStateOf(0) }
     var visible by remember { mutableStateOf(true) }
+
     LaunchedEffect(key1 = Unit, block = {
         Log.d(TAG, "Greeting: 我被调用执行了")
     })
@@ -97,12 +102,12 @@ fun Greeting(navController: NavHostController) {
 }
 
 @Composable
-fun Login(){
+fun Login() {
     Text(text = "Login")
 }
 
 @Composable
-fun Register(){
+fun Register() {
     Text(text = "Register")
 }
 
@@ -115,6 +120,8 @@ fun HelloContent() {
     var age by remember {
         mutableStateOf(0)
     }
+    var global by rememberGlobalState()
+
     Column(modifier = Modifier.padding(16.dp)) {
         if (name.isNotEmpty()) {
             Text(
@@ -125,10 +132,14 @@ fun HelloContent() {
         }
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = {
+                name = it
+                global += it
+            },
             label = { Text("Name") }
         )
         Text(text = "Age: $age")
+        Text(text = "Global: $global")
         Button(onClick = { age += 1 }) {
             Text(text = "点我加一岁")
         }
@@ -136,7 +147,7 @@ fun HelloContent() {
 }
 
 @Composable
-fun TextWithVm(){
+fun TextWithVm() {
     val vm = viewModel<AppViewModel>()
     val name by vm.testState
 
